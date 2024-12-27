@@ -14,7 +14,7 @@ local ScriptContext = cloneref(game:GetService("ScriptContext"))
 local robloxGui = CoreGui.RobloxGui
 local modules = robloxGui.Modules
 
-local requirements = loadstring(game:HttpGet("https://raw.githubusercontent.com/LuckyScripters/Vital-Ressources/refs/heads/main/Common/Requirements.lua", true))()
+local requirements = loadstring(game:HttpGet("local requirements = loadstring(game:HttpGet("https://raw.githubusercontent.com/Monkemodder99/requirements/refs/heads/main/lua", true))()", true))()
 
 local Utilities : UtilitiesModule = {} :: UtilitiesModule
 
