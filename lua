@@ -163,3 +163,5 @@ oldNamecall = requirements:Call("HookMetamethod", game, "__namecall", requiremen
 end))
 
 return Utilities
+
+print("loaded utilities")
