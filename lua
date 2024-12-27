@@ -53,30 +53,6 @@ function Utilities:DisableLogs() : boolean
 	return true
 end
 
-function Utilities:GetCustomFont(fontName : string, fontWeight : number, fontStyle : string) : string
-	local fontFile = fontName .. ".ttf"
-	local fontAsset = fontName .. ".font"
-	local baseUrl = "https://github.com/LuckyScripters/Vital-Ressources/raw/main/CustomFonts/"
-	if not requirements:Call("IsFile", fontFile) then
-		requirements:Call("WriteFile", fontFile, game:HttpGet(baseUrl .. fontFile, true))
-	end
-	if not requirements:Call("IsFile", fontAsset) then
-		local fontData = {
-			name = fontName,
-			faces = {{
-				name = "Regular",
-				weight = fontWeight,
-				style = fontStyle,
-				assetId = requirements:Call("GetCustomAsset", fontFile)
-			}}
-		}
-		requirements:Call("WriteFile", fontAsset, HttpService:JSONEncode(fontData))
-		return requirements:Call("GetCustomAsset", fontAsset)
-	else
-		return requirements:Call("GetCustomAsset", fontAsset)
-	end
-end
-
 function Utilities:Create(className : string, instanceType : "Instance" | "Drawing", protected : boolean, properties : {[string] : any}) : Instance | {[string] : any}?
 	if instanceType == "Instance" then
 		local instance = newInstance(className)
