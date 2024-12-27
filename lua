@@ -14,7 +14,7 @@ local ScriptContext = cloneref(game:GetService("ScriptContext"))
 local robloxGui = CoreGui.RobloxGui
 local modules = robloxGui.Modules
 
-local requirements = loadstring(game:HttpGet("https://raw.githubusercontent.com/LuckyScripters/Vital-Ressources/refs/heads/main/Common/Requirements.lua", true))()
+local requirements = loadstring(game:HttpGet("https://raw.githubusercontent.com/Monkemodder99/requirements/refs/heads/main/lua", true))()
 
 local Utilities : UtilitiesModule = {} :: UtilitiesModule
 
@@ -25,6 +25,7 @@ local newDrawing = requirements:Call("NewLClosure", Drawing.new)
 local newInstance = requirements:Call("NewLClosure", Instance.new)
 
 local protectedInstances = {}
+local activeDrawings = {} -- Store all Drawing objects
 
 function Utilities:ProtectInstance(instance : Instance)
 	if not table.find(protectedInstances, instance, 1) then
@@ -35,6 +36,45 @@ end
 function Utilities:UnprotectInstance(instance : Instance)
 	if table.find(protectedInstances, instance, 1) then
 		table.remove(protectedInstances, table.find(protectedInstances, instance, 1))
+	end
+end
+
+function Utilities:DisableLogs() : boolean
+	local success, result = pcall(function()
+		for index, signal in {ScriptContext.Error} do
+			for index, connection in requirements:Call("GetConnections", signal) do
+				connection:Disable()
+			end
+		end
+	end)
+	if not success then
+		warn("Failed to disable logs! Error: " .. result)
+		return false
+	end
+	return true
+end
+
+function Utilities:GetCustomFont(fontName : string, fontWeight : number, fontStyle : string) : string
+	local fontFile = fontName .. ".ttf"
+	local fontAsset = fontName .. ".font"
+	local baseUrl = "https://github.com/LuckyScripters/Vital-Ressources/raw/main/CustomFonts/"
+	if not requirements:Call("IsFile", fontFile) then
+		requirements:Call("WriteFile", fontFile, game:HttpGet(baseUrl .. fontFile, true))
+	end
+	if not requirements:Call("IsFile", fontAsset) then
+		local fontData = {
+			name = fontName,
+			faces = {{
+				name = "Regular",
+				weight = fontWeight,
+				style = fontStyle,
+				assetId = requirements:Call("GetCustomAsset", fontFile)
+			}}
+		}
+		requirements:Call("WriteFile", fontAsset, HttpService:JSONEncode(fontData))
+		return requirements:Call("GetCustomAsset", fontAsset)
+	else
+		return requirements:Call("GetCustomAsset", fontAsset)
 	end
 end
 
@@ -56,6 +96,7 @@ function Utilities:Create(className : string, instanceType : "Instance" | "Drawi
 		for propertieName, propertieValue in properties do
 			drawing[propertieName] = propertieValue
 		end
+		table.insert(activeDrawings, drawing) -- Add the new Drawing object to the list
 		return drawing
 	end
 	return nil
@@ -100,6 +141,16 @@ function Utilities:ThrowErrorUI(title : string, text : string, options : {{Text 
 	prompt:_open(text)
 	requirements:Call("SetIdentity", identity)
 end
+
+oldIndex = requirements:Call("HookMetamethod", game, "__index", requirements:Call("NewLClosure", function(self : Instance, index : string)
+	if requirements:Call("CheckCaller") then
+		return oldIndex(self, index)
+	end
+	if table.find(protectedInstances, self, 1) then
+		return nil
+	end
+	return oldIndex(self, index)
+end))
 
 oldNamecall = requirements:Call("HookMetamethod", game, "__namecall", requirements:Call("NewLClosure", function(self : Instance, ... : any)
 	if requirements:Call("CheckCaller") then
