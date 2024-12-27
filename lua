@@ -14,7 +14,7 @@ local ScriptContext = cloneref(game:GetService("ScriptContext"))
 local robloxGui = CoreGui.RobloxGui
 local modules = robloxGui.Modules
 
-local requirements = loadstring(game:HttpGet("https://raw.githubusercontent.com/Monkemodder99/requirements/refs/heads/main/lua", true))()
+local requirements = loadstring(game:HttpGet("https://raw.githubusercontent.com/LuckyScripters/Vital-Ressources/refs/heads/main/Common/Requirements.lua", true))()
 
 local Utilities : UtilitiesModule = {} :: UtilitiesModule
 
@@ -51,6 +51,30 @@ function Utilities:DisableLogs() : boolean
 		return false
 	end
 	return true
+end
+
+function Utilities:GetCustomFont(fontName : string, fontWeight : number, fontStyle : string) : string
+	local fontFile = fontName .. ".ttf"
+	local fontAsset = fontName .. ".font"
+	local baseUrl = "https://github.com/LuckyScripters/Vital-Ressources/raw/main/CustomFonts/"
+	if not requirements:Call("IsFile", fontFile) then
+		requirements:Call("WriteFile", fontFile, game:HttpGet(baseUrl .. fontFile, true))
+	end
+	if not requirements:Call("IsFile", fontAsset) then
+		local fontData = {
+			name = fontName,
+			faces = {{
+				name = "Regular",
+				weight = fontWeight,
+				style = fontStyle,
+				assetId = requirements:Call("GetCustomAsset", fontFile)
+			}}
+		}
+		requirements:Call("WriteFile", fontAsset, HttpService:JSONEncode(fontData))
+		return requirements:Call("GetCustomAsset", fontAsset)
+	else
+		return requirements:Call("GetCustomAsset", fontAsset)
+	end
 end
 
 function Utilities:Create(className : string, instanceType : "Instance" | "Drawing", protected : boolean, properties : {[string] : any}) : Instance | {[string] : any}?
@@ -163,5 +187,3 @@ oldNamecall = requirements:Call("HookMetamethod", game, "__namecall", requiremen
 end))
 
 return Utilities
-
-print("loaded utilities")
