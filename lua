@@ -3,7 +3,7 @@ type UtilitiesModule = {
 	UnprotectInstance : (self : UtilitiesModule, instance : Instance) -> (),
 	DisableLogs : (self : UtilitiesModule) -> boolean,
 	GetCustomFont : (fontName : string, fontWeight : number, fontStyle : string) -> string,
-	Create : (self : UtilitiesModule, className : string, instanceType : "Instance" | "Drawing", protected : boolean, properties : {[string] : any}) -> Instance | {[string] : any}?,
+	Create : (self : UtilitiesModule, className : string, instanceType : "Instance", protected : boolean, properties : {[string] : any}) -> Instance?,
 	ThrowErrorUI : (self : UtilitiesModule, title : string, text : string, options : {{Text : string, Callback : () -> ()}}?) -> ()
 }
 
@@ -14,14 +14,13 @@ local ScriptContext = cloneref(game:GetService("ScriptContext"))
 local robloxGui = CoreGui.RobloxGui
 local modules = robloxGui.Modules
 
-local requirements = loadstring(game:HttpGet("https://raw.githubusercontent.com/LuckyScripters/Vital-Ressources/refs/heads/main/Common/Requirements.lua", true))()
+local requirements = loadstring(game:HttpGet("https://raw.githubusercontent.com/Monkemodder99/requirements/refs/heads/main/lua", true))()
 
 local Utilities : UtilitiesModule = {} :: UtilitiesModule
 
 local oldIndex = nil
 local oldNamecall = nil
 
-local newDrawing = requirements:Call("NewLClosure", Drawing.new)
 local newInstance = requirements:Call("NewLClosure", Instance.new)
 
 local protectedInstances = {}
@@ -77,7 +76,7 @@ function Utilities:GetCustomFont(fontName : string, fontWeight : number, fontSty
 	end
 end
 
-function Utilities:Create(className : string, instanceType : "Instance" | "Drawing", protected : boolean, properties : {[string] : any}) : Instance | {[string] : any}?
+function Utilities:Create(className : string, instanceType : "Instance", protected : boolean, properties : {[string] : any}) : Instance?
 	if instanceType == "Instance" then
 		local instance = newInstance(className)
 		if protected then
@@ -87,15 +86,6 @@ function Utilities:Create(className : string, instanceType : "Instance" | "Drawi
 			instance[propertieName] = propertieValue
 		end
 		return instance
-	elseif instanceType == "Drawing" then
-		local drawing = newDrawing(className)
-		if protected then
-			Utilities:ProtectInstance(drawing)
-		end
-		for propertieName, propertieValue in properties do
-			drawing[propertieName] = propertieValue
-		end
-		return drawing
 	end
 	return nil
 end
