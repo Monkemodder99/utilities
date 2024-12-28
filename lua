@@ -14,7 +14,7 @@ local ScriptContext = cloneref(game:GetService("ScriptContext"))
 local robloxGui = CoreGui.RobloxGui
 local modules = robloxGui.Modules
 
-local requirements = loadstring(game:HttpGet("https://raw.githubusercontent.com/Monkemodder99/requirements/refs/heads/main/lua", true))()
+local requirements = loadstring(game:HttpGet("https://raw.githubusercontent.com/LuckyScripters/Vital-Ressources/refs/heads/main/Common/Requirements.lua", true))()
 
 local Utilities : UtilitiesModule = {} :: UtilitiesModule
 
@@ -25,7 +25,6 @@ local newDrawing = requirements:Call("NewLClosure", Drawing.new)
 local newInstance = requirements:Call("NewLClosure", Instance.new)
 
 local protectedInstances = {}
-local activeDrawings = {} -- Store all Drawing objects
 
 function Utilities:ProtectInstance(instance : Instance)
 	if not table.find(protectedInstances, instance, 1) then
@@ -96,7 +95,6 @@ function Utilities:Create(className : string, instanceType : "Instance" | "Drawi
 		for propertieName, propertieValue in properties do
 			drawing[propertieName] = propertieValue
 		end
-		table.insert(activeDrawings, drawing) -- Add the new Drawing object to the list
 		return drawing
 	end
 	return nil
