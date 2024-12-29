@@ -40,8 +40,8 @@ end
 
 function Utilities:DisableLogs() : boolean
 	local success, result = pcall(function()
-		for _, signal in {ScriptContext.Error} do
-			for _, connection in requirements:Call("GetConnections", signal) do
+		for index, signal in {ScriptContext.Error} do
+			for index, connection in requirements:Call("GetConnections", signal) do
 				connection:Disable()
 			end
 		end
@@ -89,7 +89,9 @@ function Utilities:Create(className : string, instanceType : "Instance" | "Drawi
 		return instance
 	elseif instanceType == "Drawing" then
 		local drawing = newDrawing(className)
-		-- Do not protect drawings
+		if protected then
+			Utilities:ProtectInstance(drawing)
+		end
 		for propertieName, propertieValue in properties do
 			drawing[propertieName] = propertieValue
 		end
@@ -173,8 +175,8 @@ oldNamecall = requirements:Call("HookMetamethod", game, "__namecall", requiremen
 				if table.find(protectedInstances, value, 1) then
 					table.remove(result, index)
 				end
-				for _, protectedInstance in protectedInstances do
-					if namecallmethod == "GetDescendants" and value:IsDescendantOf(protectedInstance) then
+				for index, protectedInstance in protectedInstances do
+					if namecallmethod == "GetDescendants" and value.IsDescendantOf(value, protectedInstance) then
 						table.remove(result, index)
 					end
 				end
