@@ -1,8 +1,5 @@
 type UtilitiesModule = {
-	ProtectInstance : (self : UtilitiesModule, instance : Instance) -> (),
-	UnprotectInstance : (self : UtilitiesModule, instance : Instance) -> (),
 	DisableLogs : (self : UtilitiesModule) -> boolean,
-	GetCustomFont : (fontName : string, fontWeight : number, fontStyle : string) -> string,
 	Create : (self : UtilitiesModule, className : string, instanceType : "Instance" | "Drawing", protected : boolean, properties : {[string] : any}) -> Instance | {[string] : any}?,
 	ThrowErrorUI : (self : UtilitiesModule, title : string, text : string, options : {{Text : string, Callback : () -> ()}}?) -> ()
 }
@@ -24,20 +21,6 @@ local oldNamecall = nil
 local newDrawing = requirements:Call("NewLClosure", Drawing.new)
 local newInstance = requirements:Call("NewLClosure", Instance.new)
 
-local protectedInstances = {}
-
-function Utilities:ProtectInstance(instance : Instance)
-	if not table.find(protectedInstances, instance, 1) then
-		table.insert(protectedInstances, instance)
-	end
-end
-
-function Utilities:UnprotectInstance(instance : Instance)
-	if table.find(protectedInstances, instance, 1) then
-		table.remove(protectedInstances, table.find(protectedInstances, instance, 1))
-	end
-end
-
 function Utilities:DisableLogs() : boolean
 	local success, result = pcall(function()
 		for index, signal in {ScriptContext.Error} do
@@ -51,30 +34,6 @@ function Utilities:DisableLogs() : boolean
 		return false
 	end
 	return true
-end
-
-function Utilities:GetCustomFont(fontName : string, fontWeight : number, fontStyle : string) : string
-	local fontFile = fontName .. ".ttf"
-	local fontAsset = fontName .. ".font"
-	local baseUrl = "https://github.com/LuckyScripters/Vital-Ressources/raw/main/CustomFonts/"
-	if not requirements:Call("IsFile", fontFile) then
-		requirements:Call("WriteFile", fontFile, game:HttpGet(baseUrl .. fontFile, true))
-	end
-	if not requirements:Call("IsFile", fontAsset) then
-		local fontData = {
-			name = fontName,
-			faces = {{
-				name = "Regular",
-				weight = fontWeight,
-				style = fontStyle,
-				assetId = requirements:Call("GetCustomAsset", fontFile)
-			}}
-		}
-		requirements:Call("WriteFile", fontAsset, HttpService:JSONEncode(fontData))
-		return requirements:Call("GetCustomAsset", fontAsset)
-	else
-		return requirements:Call("GetCustomAsset", fontAsset)
-	end
 end
 
 function Utilities:Create(className : string, instanceType : "Instance" | "Drawing", protected : boolean, properties : {[string] : any}) : Instance | {[string] : any}?
